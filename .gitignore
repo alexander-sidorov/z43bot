@@ -1,2 +1,7 @@
+.coverage
 .env
 .idea/
+.mypy_cache/
+.pytest_cache/
+htmlcov/
+tests/coverage_html_report/
