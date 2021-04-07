@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-aiohttp = {extras = ["speedups"], version = "*"}
-devtools = {extras = ["pygments"], version = "*"}
+aiohttp = { extras = ["speedups"], version = "*" }
+devtools = { extras = ["pygments"], version = "*" }
 fastapi = "*"
 pydantic = "*"
 python-dotenv = "*"
@@ -13,8 +13,9 @@ uvicorn = { extras = ["standard"], version = "*" }
 
 [dev-packages]
 black = "==20.8b1"
-coverage = {extras = ["toml"], version = "*"}
+coverage = { extras = ["toml"], version = "*" }
 flake8 = "*"
+flake8-builtins = "*"
 isort = "*"
 mypy = "*"
 pylint = "*"

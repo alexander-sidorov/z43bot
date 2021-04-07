@@ -12,14 +12,6 @@ class Settings(BaseSettings):
         case_sensitive = True
         env_file = ".env"
         env_file_encoding = "utf-8"
-        fields = {
-            "from_": "from",
-        }
 
 
 settings: Settings = Settings()
-
-if __name__ == "__main__":
-    from z43bot.util import debug
-
-    debug(settings)
