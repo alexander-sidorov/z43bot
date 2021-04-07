@@ -6,7 +6,7 @@ jobs:
   run_tests:
     env:
       BOT_TOKEN: "xxx-token"
-      PYTHONPATH: ${GITHUB_WORKSPACE}/src
+      PYTHONPATH: src
       SERVICE_URL: "http://localhost:8000"
     runs-on: ubuntu-latest
     steps:
