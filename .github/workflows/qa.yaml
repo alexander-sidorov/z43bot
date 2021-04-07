@@ -1,16 +1,15 @@
-on:
-  push:
-    tags:
-      - '!refs/tags/*'
-    branches:
-      - '*'
+name: QA
+
+on: [push]
 
 jobs:
   run_tests:
-    runs-on: [ ubuntu-latest ]
+    env:
+      PYTHONPATH: src
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
         with:
           python-version: '3.9'
           architecture: 'x64'
