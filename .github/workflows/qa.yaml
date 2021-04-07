@@ -6,6 +6,7 @@ jobs:
   run_tests:
     env:
       BOT_TOKEN: "xxx-token"
+      PORT: 8000
       PYTHONPATH: src
       SERVICE_URL: "http://localhost:8000"
     runs-on: ubuntu-latest
@@ -21,5 +22,7 @@ jobs:
         run: pipenv --three
       - name: install packages
         run: pipenv install --dev
+      - name: run local web server
+        run: pipenv run make run-prod &
       - name: run tests
         run: pipenv run make qa
