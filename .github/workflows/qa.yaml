@@ -5,7 +5,7 @@ on: [push]
 jobs:
   run_tests:
     env:
-      PYTHONPATH: src
+      PYTHONPATH: ${{GITHUB_WORKSPACE}}/src
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
