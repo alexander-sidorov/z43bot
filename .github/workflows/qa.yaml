@@ -19,7 +19,9 @@ jobs:
       - name: install pipenv
         run: pip install pipenv
       - name: install virtual env
-        run: pipenv --three
+        run: |
+          mkdir .venv
+          pipenv --three
       - name: install packages
         run: pipenv install --dev
       - name: run local web server
