@@ -16,15 +16,24 @@ jobs:
         with:
           python-version: '3.9'
           architecture: 'x64'
-      - name: install pipenv
+      - name: venv-install-pipenv
         run: pip install pipenv
-      - name: install virtual env
-        run: |
-          mkdir .venv
-          pipenv --three
-      - name: install packages
+      - name: venv-init
+        run: mkdir -p .venv
+      - name: venv-python
+        run: pipenv --three
+      - name: venv-packages-cache
+        id: venv-packages-cache
+        uses: actions/cache@v2
+        with:
+          path: ./.venv/
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-
+      - name: venv-packages-install
+        if: ${{ !steps.venv-packages-cache.outputs.cache-hit }}
         run: pipenv install --dev
-      - name: run local web server
+      - name: run-prod-httpd
         run: pipenv run make run-prod &
-      - name: run tests
+      - name: run-qa
         run: pipenv run make qa
