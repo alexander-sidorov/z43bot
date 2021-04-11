@@ -5,9 +5,10 @@ on: [push]
 jobs:
   run_tests:
     env:
+      ADMIN_PASSWORD: "1"
       BOT_TOKEN: "xxx-token"
-      PORT: 8000
-      PYTHONPATH: src
+      PORT: "8000"
+      PYTHONPATH: "src"
       SERVICE_URL: "http://localhost:8000"
     runs-on: ubuntu-latest
     steps:
