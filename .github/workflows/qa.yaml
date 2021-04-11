@@ -30,6 +30,7 @@ jobs:
           path: ./.venv/
           key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
           restore-keys: |
+            ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
             ${{ runner.os }}-pipenv-
       - name: venv-packages-install
         if: ${{ !steps.venv-packages-cache.outputs.cache-hit }}
