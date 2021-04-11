@@ -15,9 +15,4 @@ async def test(http_session):
     url_settings = f"{service}/settings/"
 
     async with http_session.get(url_settings) as resp:
-        assert resp.status == status.HTTP_200_OK
-
-        payload = await resp.json()
-
-        bot_token = payload.get("bot_token")
-        assert bot_token == settings.bot_token
+        assert resp.status == status.HTTP_404_NOT_FOUND

@@ -24,6 +24,22 @@ class SendMessage(BaseModel):
     reply_to_message_id: Optional[int] = Field(None)
 
 
+class SetWebhook(BaseModel):
+    url: str
+    drop_pending_updates: Optional[bool] = Field(False)
+
+
+class WebhookInfo(BaseModel):
+    url: str
+    has_custom_certificate: bool
+    pending_update_count: int
+    ip_address: Optional[str] = Field(None)
+    last_error_date: Optional[int] = Field(None)
+    last_error_message: Optional[str] = Field(None)
+    max_connections: Optional[int] = Field(None)
+    allowed_updates: List[str] = Field(default_factory=list)
+
+
 class Chat(BaseModel):
     id: int  # noqa: A003
     type: str  # noqa: A003
