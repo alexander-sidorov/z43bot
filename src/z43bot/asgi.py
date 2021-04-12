@@ -1,3 +1,4 @@
+import enum
 from contextlib import closing
 from typing import Optional
 
@@ -65,18 +66,36 @@ async def handle_setup_webhook(
     )
 
 
+@enum.unique
+class UserStatus(enum.Enum):
+    INITIAL =1
+    WAITING_FOR_USERNAME = 2
+    WAITING_FOR_PASSWORD = 3
+
+
 @app.post("/webhook/")
 async def handle_webhook(update: telegram.Update):
     debug(update)
     try:
-        text = update.message.text
-        reply = text.capitalize() if isinstance(text, str) else "что это?"
+        user: User2 = await get_or_create_user(update.message.from_.id)
+        if user.blog_user_id:
+            await telegram.send_message(
+                chat_id=update.message.chat.id,
+                reply_to_message_id=update.message.message_id,
+                text=f"ТЫ: {user}, пишешь какую-то дичь: {update.message.text}",
+            )
+        else:
+            if user.status == UserStatus.INITIAL.value:
+                await ask_for_username(update.message.chat.id)
+            elif user.status == UserStatus.WAITING_FOR_USERNAME.value:
+                await setup_username(update.message.from_.id, update.message.text)
+                await ask_for_password(update.message.chat.id)
+            elif user.status == UserStatus.WAITING_FOR_PASSWORD.value:
+                password = update.message.text
+                await auth_on_blog(user.blog_username, password)
+            else:
+                raise RuntimeError(f"unknown status: {user.status}")
 
-        await telegram.send_message(
-            chat_id=update.message.chat.id,
-            reply_to_message_id=update.message.message_id,
-            text=reply,
-        )
     except Exception as err:  # pylint: disable=broad-except
         import traceback  # pylint: disable=import-outside-toplevel
 
@@ -91,6 +110,7 @@ class User2(BaseModel):
     user_id: int
     blog_user_id: Optional[int] = Field(None)
     blog_username: Optional[str] = Field(None)
+    status: int = Field(...)
 
 
 @app.post("/xxx/{user_id}/")
