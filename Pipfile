@@ -5,12 +5,14 @@ name = "pypi"
 
 [packages]
 aiohttp = { extras = ["speedups"], version = "*" }
+asyncpg = "*"
 devtools = { extras = ["pygments"], version = "*" }
 fastapi = "*"
 jinja2 = "*"
 pydantic = "*"
 python-dotenv = "*"
 python-multipart = "*"
+sqlalchemy = "*"
 uvicorn = { extras = ["standard"], version = "*" }
 
 [dev-packages]

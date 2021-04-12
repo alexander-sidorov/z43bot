@@ -1,7 +1,14 @@
+from contextlib import closing
+from typing import Optional
+
+import asyncpg
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi import Form
 from fastapi import HTTPException
+from fastapi import Path
+from pydantic import BaseModel
+from pydantic import Field
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
@@ -77,3 +84,30 @@ async def handle_webhook(update: telegram.Update):
         debug(traceback.format_exc())
 
     return {"ok": True}
+
+
+class User2(BaseModel):
+    id: int
+    user_id: int
+    blog_user_id: Optional[int] = Field(None)
+    blog_username: Optional[str] = Field(None)
+
+
+@app.post("/xxx/{user_id}/")
+async def xxx(user_id: int = Path(...)):
+    conn = await asyncpg.connect(dsn=settings.database_url)
+    try:
+        values = await conn.fetch(
+            'select * from users where id = $1',
+            user_id,
+        )
+        debug(values)
+
+        values2 = [
+            User2.parse_obj(obj)
+            for obj in values
+        ]
+
+        return values2
+    finally:
+        await conn.close()
