@@ -8,7 +8,7 @@ env:
   PORT: "8000"
   PYTHONPATH: "src"
   SERVICE_URL: "http://localhost:8000"
-  DATABASE_URL: "postgresql://xxx:xxx@postgres:5432/xxx"
+  DATABASE_URL: "postgresql://xxx:xxx@localhost:5432/xxx"
 
 jobs:
   full-build-and-qa:
