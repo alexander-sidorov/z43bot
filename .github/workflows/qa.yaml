@@ -8,7 +8,7 @@ env:
   PORT: "8000"
   PYTHONPATH: "src"
   SERVICE_URL: "http://localhost:8000"
-  DATABASE_URL: "postgresql://xxx:xxx@localhost:5432/xxx"
+  DATABASE_URL: "postgresql://testuser:testpassword@localhost:5432/testdb"
 
 jobs:
   full-build-and-qa:
@@ -16,10 +16,12 @@ jobs:
     services:
       postgres:
         image: postgres
+        ports:
+          - 5432:5432
         env:
-          POSTGRES_DB: xxx
-          POSTGRES_PASSWORD: xxx
-          POSTGRES_USER: xxx
+          POSTGRES_DB: testdb
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_USER: testuser
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
