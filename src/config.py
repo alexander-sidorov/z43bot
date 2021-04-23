@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     bot_token: str = Field(..., env="BOT_TOKEN")
     database_url: str = Field(..., env="DATABASE_URL")
     debug: bool = Field(env="DEBUG", default=False)
+    debug_sql: bool = Field(env="DEBUG_SQL", default=False)
     service_url: str = Field(..., env="SERVICE_URL")
 
     class Config:

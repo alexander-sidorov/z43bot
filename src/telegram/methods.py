@@ -7,7 +7,7 @@ from aiohttp import ClientResponse
 from pydantic import BaseModel
 from starlette import status
 
-from z43bot.util import debug
+from util import debug
 
 from .consts import TELEGRAM_BOT_API
 from .types import Message

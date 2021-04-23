@@ -1,4 +1,4 @@
-from z43bot.config import settings
+from config import settings
 
 if settings.debug:
     from devtools import debug

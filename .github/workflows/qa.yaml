@@ -2,28 +2,38 @@ name: QA
 
 on: [push]
 
+env:
+  ADMIN_PASSWORD: "1"
+  BOT_TOKEN: "xxx-token"
+  PORT: "8000"
+  PYTHONPATH: "src"
+  SERVICE_URL: "http://localhost:8000"
+
 jobs:
-  run_tests:
-    env:
-      ADMIN_PASSWORD: "1"
-      BOT_TOKEN: "xxx-token"
-      PORT: "8000"
-      PYTHONPATH: "src"
-      SERVICE_URL: "http://localhost:8000"
+  code:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: pull code from repo
+        uses: actions/checkout@v2
+  runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - name: set up python
+        uses: actions/setup-python@v2
         with:
           python-version: '3.9'
           architecture: 'x64'
-      - name: venv-install-pipenv
+      - name: set up pipenv
         run: pip install pipenv
-      - name: venv-init
-        run: mkdir -p .venv
-      - name: venv-python
-        run: pipenv --three
-      - name: venv-packages-cache
+      - name: init virtualenv
+        run: |
+          mkdir -p .venv
+          pipenv --three
+  venv:
+    runs-on: ubuntu-latest
+    needs: [code, runtime]
+    steps:
+      - name: cache packages
         id: venv-packages-cache
         uses: actions/cache@v2
         with:
@@ -31,10 +41,42 @@ jobs:
           key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
-      - name: venv-packages-install
+      - name: install packages
         if: ${{ !steps.venv-packages-cache.outputs.cache-hit }}
         run: pipenv install --dev
-      - name: run-prod-httpd
+  servers:
+    runs-on: ubuntu-latest
+    needs: venv
+    steps:
+      - name: run production web server
         run: pipenv run make run-prod &
-      - name: run-qa
-        run: pipenv run make qa
+  tests:
+    runs-on: ubuntu-latest
+    needs: servers
+    steps:
+      - name: run tests
+        run: pipenv run make run-tests
+  static-analysis:
+    runs-on: ubuntu-latest
+    needs: venv
+    steps:
+      - name: analyze types
+        run: pipenv run make check-types
+  imports:
+    runs-on: ubuntu-latest
+    needs: venv
+    steps:
+      - name: analyze imports
+        run: pipenv run make check-imports
+  code-format:
+    runs-on: ubuntu-latest
+    needs: venv
+    steps:
+      - name: check code format
+        run: pipenv run make check-code-style
+  linting:
+    runs-on: ubuntu-latest
+    needs: venv
+    steps:
+      - name: run linters
+        run: pipenv run make run-static-code-analysis
