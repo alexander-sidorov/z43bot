@@ -21,6 +21,10 @@ qa: run-tests check-types check-imports check-code-style run-static-code-analysi
 	@echo "quality is assured"
 
 
+release: db
+	@echo "release steps are done"
+
+
 run-tests:
 	coverage run -m pytest -vv
 	coverage html

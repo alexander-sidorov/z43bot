@@ -8,10 +8,23 @@ env:
   PORT: "8000"
   PYTHONPATH: "src"
   SERVICE_URL: "http://localhost:8000"
+  DATABASE_URL: "http://xxx:xxx@localhost:5432/xxx"
 
 jobs:
   full-build-and-qa:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: xxx
+          POSTGRES_PASSWORD: xxx
+          POSTGRES_USER: xxx
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-retries 5
+          --health-timeout 5s
     steps:
       - name: pull code from repo
         uses: actions/checkout@v2
@@ -39,5 +52,7 @@ jobs:
         run: pipenv install --dev
       - name: run production web server
         run: pipenv run make run-prod &
+      - name: release
+        run: pipenv run make release
       - name: qa
         run: pipenv run make qa
