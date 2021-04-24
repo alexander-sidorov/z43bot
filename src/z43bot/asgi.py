@@ -8,10 +8,11 @@ from starlette.responses import HTMLResponse
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
-from z43bot import telegram
-from z43bot.config import settings
-from z43bot.dirs import DIR_TEMPLATES
-from z43bot.util import debug
+import telegram
+from config import settings
+from dirs import DIR_TEMPLATES
+from util import debug
+from z43bot.fsm import auth as auth_fsm
 
 load_dotenv()
 
@@ -62,14 +63,13 @@ async def handle_setup_webhook(
 async def handle_webhook(update: telegram.Update):
     debug(update)
     try:
-        text = update.message.text
-        reply = text.capitalize() if isinstance(text, str) else "что это?"
 
+        text = await auth_fsm.process(update)
         await telegram.send_message(
             chat_id=update.message.chat.id,
-            reply_to_message_id=update.message.message_id,
-            text=reply,
+            text=text,
         )
+
     except Exception as err:  # pylint: disable=broad-except
         import traceback  # pylint: disable=import-outside-toplevel
 
