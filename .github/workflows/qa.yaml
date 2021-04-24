@@ -4,11 +4,12 @@ on: [push]
 
 env:
   ADMIN_PASSWORD: "1"
+  BLOG_URL: "http://localhost:8001"
   BOT_TOKEN: "xxx-token"
+  DATABASE_URL: "postgresql://testuser:testpassword@localhost:5432/testdb"
   PORT: "8000"
   PYTHONPATH: "src"
   SERVICE_URL: "http://localhost:8000"
-  DATABASE_URL: "postgresql://testuser:testpassword@localhost:5432/testdb"
 
 jobs:
   full-build-and-qa:

@@ -16,7 +16,7 @@ class Model(Base):
 class User(Model):
     __tablename__ = "users"
 
-    id = Column(
+    id = Column(  # noqa: A003
         Integer,
         primary_key=True,
     )
@@ -26,4 +26,4 @@ class User(Model):
     )
     blog_user_id = Column(Integer)
     blog_username = Column(Text)
-    status = Column(Integer)
+    state_auth = Column(Integer)

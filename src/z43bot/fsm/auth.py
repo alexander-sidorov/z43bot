@@ -1,5 +1,6 @@
 import dataclasses
 import enum
+from collections import Coroutine
 from typing import Callable
 
 import blog
@@ -22,19 +23,22 @@ class Next:
     state: AuthState = AuthState.UNKNOWN
 
 
-_automata = {}
+_AUTOMATA = {}
+
+HandlerT = Callable[[Update], Coroutine[None, None, Next]]
 
 
 def register_state_handler(*states: AuthState):
-    def register_decorator(handler: Callable):
-        global _automata
-        _automata.update({state: handler for state in states})
+    def register_decorator(handler: HandlerT):
+        global _AUTOMATA  # pylint: disable=W0603 (global-statement)
+        _AUTOMATA.update({state: handler for state in states})
         return handler
 
     return register_decorator
 
 
 async def process(update: Update) -> str:
+    assert update.message.from_
     user_id = update.message.from_.id
 
     await dal.init_user(user_id)
@@ -47,17 +51,19 @@ async def process(update: Update) -> str:
     return next_.signal
 
 
-def get_handler(state: AuthState) -> Callable:
-    handler = _automata[state]
+def get_handler(state: AuthState) -> HandlerT:
+    handler = _AUTOMATA[state]
 
     return handler
 
 
 async def get_state(user_id: int) -> AuthState:
-    state_value = await dal.get_user_auth_state(user_id)
+    user = await dal.get_user(user_id)
+    if not user:
+        return AuthState.UNKNOWN
 
     try:
-        state = AuthState(state_value)
+        state = AuthState(user.state_auth)
     except ValueError:
         state = AuthState.UNKNOWN
 
@@ -78,6 +84,8 @@ async def _handle_not_authenticated(_update: Update) -> Next:
 
 @register_state_handler(AuthState.WAITING_FOR_USERNAME)
 async def _handle_username(update: Update) -> Next:
+    assert update.message.from_
+
     user_id = update.message.from_.id
     username = update.message.text
 
@@ -91,13 +99,16 @@ async def _handle_username(update: Update) -> Next:
 
 @register_state_handler(AuthState.WAITING_FOR_PASSWORD)
 async def _process_password(update: Update) -> Next:
+    assert update.message.from_
     user_id = update.message.from_.id
     password = update.message.text
-    username = await dal.get_user_blog_username(user_id)
+    user = await dal.get_user(user_id)
 
-    blog_user_id = await blog.authenticate(username, password)
+    blog_user = None
+    if user and user.blog_username and password:
+        blog_user = await blog.authenticate(user.blog_username, password)
 
-    if not blog_user_id:
+    if not blog_user or not blog_user.id:
         await dal.reset_user_blog_auth_data(user_id)
 
         return Next(
@@ -109,9 +120,9 @@ async def _process_password(update: Update) -> Next:
             state=AuthState.WAITING_FOR_USERNAME,
         )
 
-    await dal.set_user_blog_user_id(user_id, blog_user_id)
+    await dal.set_user_blog_user_id(user_id, blog_user.id)
 
-    posts = await blog.get_posts(blog_user_id)
+    posts = await blog.get_posts(blog_user.id)
     signal = ", ".join(str(post.id) for post in posts)
 
     return Next(

@@ -1,4 +1,6 @@
-BLOG_URL = "https://tms-z43.herokuapp.com"
+from config import settings
+
+BLOG_URL = settings.blog_url
 
 URL_API = f"{BLOG_URL}/api"
 URL_API_USER = f"{BLOG_URL}/api/user"

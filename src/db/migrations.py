@@ -6,9 +6,12 @@ from db.engines import engine
 
 migrations = [
     """
-    create table users(
+    create table if not exists users(
         id serial primary key,
-        user_id integer unique
+        user_id integer unique,
+        blog_user_id integer,
+        blog_username text,
+        state_auth integer
     );
     """,
 ]
