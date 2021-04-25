@@ -19,8 +19,8 @@ migrations = [
 
 async def apply_migrations():
     async with engine.begin() as conn:
-        for m in migrations:
-            await conn.execute(sa.text(m))
+        for migration in migrations:
+            await conn.execute(sa.text(migration))
 
 
 if __name__ == "__main__":

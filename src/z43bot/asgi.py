@@ -11,6 +11,7 @@ from starlette.templating import Jinja2Templates
 import telegram
 from config import settings
 from dirs import DIR_TEMPLATES
+from telegram.util import shadow_webhook_secret
 from util import debug
 from z43bot.fsm import auth as auth_fsm
 
@@ -21,14 +22,14 @@ templates = Jinja2Templates(directory=DIR_TEMPLATES.as_posix())
 
 
 @app.get("/", response_class=HTMLResponse)
-async def handle_index(
-    request: Request,
-):
-    webhook = await telegram.get_webhook_info()
-    debug(webhook)
+async def handle_index(request: Request):
+    webhook_unsafe = await telegram.get_webhook_info()
+    debug(webhook_unsafe)
+
+    webhook_safe = shadow_webhook_secret(webhook_unsafe)
 
     context = {
-        "url_webhook_current": webhook.url,
+        "url_webhook_current": webhook_safe.url,
         "url_webhook_new": f"{settings.service_url}/webhook/",
     }
 
@@ -40,16 +41,17 @@ async def handle_index(
 
 
 @app.post("/webhook-setup/")
-async def handle_setup_webhook(
-    password: str = Form(...),
-):
+async def handle_setup_webhook(password: str = Form(...)):
     if password != settings.admin_password:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only admin is allowed to configure webhook",
         )
 
-    new_webhook_url = f"{settings.service_url}/webhook/"
+    new_webhook_url = (
+        f"{settings.service_url}/webhook/{settings.webhook_secret}/"
+    )
+    debug(new_webhook_url)
 
     await telegram.set_webhook(url=new_webhook_url)
 
@@ -59,11 +61,11 @@ async def handle_setup_webhook(
     )
 
 
-@app.post("/webhook/")
+@app.post(f"/webhook/{settings.webhook_secret}/")
 async def handle_webhook(update: telegram.Update):
     debug(update)
-    try:
 
+    try:
         text = await auth_fsm.process(update)
         await telegram.send_message(
             chat_id=update.message.chat.id,

@@ -6,7 +6,7 @@ from sqlalchemy.orm import declarative_base
 Base = declarative_base()
 
 
-class Model(Base):
+class Model(Base):  # type: ignore  # noqa
     __abstract__ = True
     __mapper_args__ = {
         "eager_defaults": True,
