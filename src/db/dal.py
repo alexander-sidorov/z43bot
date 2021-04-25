@@ -1,3 +1,5 @@
+from typing import Any
+from typing import Dict
 from typing import Optional
 
 import sqlalchemy as sa
@@ -31,7 +33,7 @@ async def get_user(user_id: int) -> Optional[User]:
 
     async with begin_session() as session:
         response = await session.execute(stmt)
-        user = response.scalars().first()
+        user: User = response.scalars().first()
 
     return user
 
@@ -81,7 +83,7 @@ async def set_user_blog_user_id(
 
 async def _update_user(
     user_id: int,
-    values: dict,
+    values: Dict[str, Any],
 ) -> None:
     stmt = (
         sa.update(User)

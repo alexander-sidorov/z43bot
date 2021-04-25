@@ -27,6 +27,8 @@ async def authenticate(username: str, password: str) -> Optional[User]:
 
 async def get_posts(blog_user_id: int) -> List[Post]:
     data = await call_api("get", f"{URL_API_BLOG}/?author_id={blog_user_id}")
-    posts = [Post.parse_obj(chunk) for chunk in data]
+    posts = []
+    if isinstance(data, list):
+        posts = [Post.parse_obj(chunk) for chunk in data]
 
     return posts

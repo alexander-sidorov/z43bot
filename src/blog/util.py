@@ -1,5 +1,8 @@
+from typing import Any
+from typing import Dict
+from typing import List
 from typing import Optional
-from typing import TypeVar
+from typing import Union
 
 import aiohttp
 from aiohttp import ClientResponse
@@ -8,7 +11,10 @@ from starlette import status
 
 from .consts import CONTENT_TYPE
 
-T = TypeVar("T", bound=BaseModel)
+JsonTypeT = Union[str, int, float, None]
+JsonObjT = Dict[str, JsonTypeT]
+JsonObjListT = List[Union[JsonTypeT, JsonObjT]]
+JsonT = Union[JsonTypeT, JsonObjT, JsonObjListT]
 
 
 async def call_api(
@@ -17,7 +23,7 @@ async def call_api(
     *,
     payload: Optional[BaseModel] = None,
     success_status: int = status.HTTP_200_OK,
-) -> Optional[T]:
+) -> JsonT:
     headers = {
         "Content-Type": CONTENT_TYPE,
     }
@@ -40,7 +46,7 @@ async def call_api(
         if response.status != success_status:
             return None
 
-        data = await response.json()
+        data: Dict[str, Any] = await response.json()
         if not data.get("meta", {}).get("ok"):
             return None
 

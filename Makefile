@@ -32,7 +32,7 @@ run-tests:
 
 
 check-types:
-	mypy --package z43bot
+	mypy src/
 
 
 check-imports:
@@ -49,7 +49,7 @@ run-static-code-analysis:
 		--max-line-length=79 \
 		./src/ \
 
-	pylint z43bot
+	pylint blog db telegram z43bot src/*.py
 
 
 db:
