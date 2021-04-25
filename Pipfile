@@ -26,6 +26,7 @@ mypy = "*"
 pylint = "*"
 pytest = "*"
 pytest-asyncio = "*"
+pytest-mock = "*"
 
 [requires]
 python_version = "3.9"
