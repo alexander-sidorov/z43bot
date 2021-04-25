@@ -7,10 +7,12 @@ from aiohttp import ClientResponse
 from pydantic import BaseModel
 from starlette import status
 
+from config import settings
 from util import debug
 
 from .consts import TELEGRAM_BOT_API
 from .types import TelegramResponse
+from .types import WebhookInfo
 
 OutputDataT = TypeVar("OutputDataT", bound=BaseModel)
 
@@ -65,5 +67,22 @@ async def invoke_api_method(
 
     if output_type is not None:
         result = output_type.parse_obj(response_tg.result)
+
+    return result
+
+
+def shadow_webhook_secret(webhook: WebhookInfo) -> WebhookInfo:
+    if not webhook.url:
+        return webhook
+
+    safe_url = webhook.url.replace(settings.webhook_secret, "")
+    if safe_url.endswith("//"):
+        safe_url = safe_url[:-1]
+
+    result = webhook.copy(
+        update={
+            "url": safe_url,
+        }
+    )
 
     return result
