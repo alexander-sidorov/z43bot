@@ -10,6 +10,7 @@ env:
   PORT: "8000"
   PYTHONPATH: "src"
   SERVICE_URL: "http://localhost:8000"
+  WEBHOOK_SECRET: "wh-secret-xxx"
 
 jobs:
   full-build-and-qa:
