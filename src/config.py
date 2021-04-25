@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     debug: bool = Field(env="DEBUG", default=False)
     debug_sql: bool = Field(env="DEBUG_SQL", default=False)
     service_url: str = Field(..., env="SERVICE_URL")
+    webhook_secret: str = Field(..., env="WEBHOOK_SECRET")
 
     class Config:
         case_sensitive = True
